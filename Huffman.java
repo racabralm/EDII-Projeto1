@@ -20,29 +20,26 @@ public class Huffman {
         // 5. Se o modo for inválido, imprima uma mensagem de erro.
     }
 
-    // ===================================================================================
-    // --- PARTE DA COMPRESSÃO (PESSOA 2) ---
-    // ===================================================================================
-
     public static void comprimir(String arqOrigem, String arqDestino) throws IOException {
-        // TODO 2 (Pessoa 3): Chamar o método para ler os bytes do arquivo de origem.
-        byte[] bytesArquivo = null; // = lerArquivo(arqOrigem); // Pessoa 3 implementa `lerArquivo`
+        // --- Chamadas de Métodos (Pessoa 2) ---
+        // TODO 2 (Pessoa 2): Chamar o método para ler os bytes do arquivo de origem.
+        byte[] bytesArquivo = lerArquivo(arqOrigem);
 
         // TODO 3 (Pessoa 2): Chamar o método para construir a tabela de frequências.
-        int[] tabelaFrequencia = null; // = construirTabelaFrequencia(bytesArquivo);
+        int[] tabelaFrequencia = construirTabelaFrequencia(bytesArquivo);
 
         // TODO 4 (Pessoa 2): Chamar o método para construir a Árvore de Huffman.
-        No raiz = null; // = construirArvoreHuffman(tabelaFrequencia);
+        No raiz = construirArvoreHuffman(tabelaFrequencia);
 
         // TODO 5 (Pessoa 2): Chamar o método para gerar a tabela de códigos.
         String[] tabelaCodigos = new String[TAMANHO_ASCII];
-        // gerarTabelaCodigos(raiz, "", tabelaCodigos);
+        gerarTabelaCodigos(raiz, "", tabelaCodigos);
         
         // TODO 6 (Pessoa 2): Chamar o método para codificar os dados.
-        byte[] dadosComprimidos = null; // = codificarDados(bytesArquivo, tabelaCodigos);
+        byte[] dadosComprimidos = codificarDados(bytesArquivo, tabelaCodigos);
 
-        // TODO 7 (Pessoa 3): Chamar o método para escrever o arquivo comprimido final.
-        // escreverArquivoComprimido(arqDestino, tabelaFrequencia, dadosComprimidos);
+        // TODO 7 (Pessoa 2): Chamar o método para escrever o arquivo comprimido final.
+        escreverArquivoComprimido(arqDestino, tabelaFrequencia, dadosComprimidos);
     }
 
     private static int[] construirTabelaFrequencia(byte[] dados) {
@@ -85,16 +82,28 @@ public class Huffman {
         return new byte[0]; // Linha temporária
     }
     
-    // ===================================================================================
-    // --- PARTE DA DESCOMPRESSÃO E ARQUIVOS (PESSOA 3) ---
-    // ===================================================================================
+    private static byte[] lerArquivo(String caminho) throws IOException {
+        // TODO 14 (Pessoa 2): Implemente a leitura de um arquivo para um byte[].
+        // Dica: use `FileInputStream` e `readAllBytes()` ou um loop de leitura.
+        return new byte[0]; // Linha temporária
+    }
+
+    private static long escreverArquivoComprimido(String caminho, int[] freq, byte[] dados) throws IOException {
+        // TODO 15 (Pessoa 2): Implemente a escrita do arquivo comprimido.
+        // Use um `DataOutputStream`.
+        // 1. Escreva o cabeçalho: Percorra o array `freq` e escreva cada `int`.
+        // 2. Escreva um byte de padding (pode ser 0).
+        // 3. Escreva o array de `dados` comprimidos.
+        // Retorne o total de bits dos dados comprimidos para o resumo.
+        return 0; // Linha temporária
+    }
 
     public static void descomprimir(String arqOrigem, String arqDestino) throws IOException {
         // TODO 12 (Pessoa 3): Implemente o fluxo de descompressão.
         // Use um `try-with-resources` com `DataInputStream` para ler o arquivo de origem.
         // 1. Leia o cabeçalho: Percorra um loop de 0 a 255 e leia cada `int` da frequência
         //    para reconstruir a `tabelaFrequencia`.
-        // 2. Reconstrua a Árvore de Huffman chamando `construirArvoreHuffman` (feito pela Pessoa 2).
+        // 2. Reconstrua a Árvore de Huffman chamando `construirArvoreHuffman` (da Pessoa 2).
         // 3. Leia o byte de padding (ainda que não usado, ele deve ser lido).
         // 4. Leia o restante dos bytes do arquivo (`.readAllBytes()`).
         // 5. Chame o método `decodificarDados` para finalizar.
@@ -110,21 +119,5 @@ public class Huffman {
         //    c. Se `noAtual` se tornar uma folha, escreva o caractere no arquivo,
         //       e redefina `noAtual = raiz`.
         // 4. Continue até que o número esperado de caracteres (`totalChars`) seja decodificado.
-    }
-
-    private static byte[] lerArquivo(String caminho) throws IOException {
-        // TODO 14 (Pessoa 3): Implemente a leitura de um arquivo para um byte[].
-        // Dica: use `FileInputStream` e `readAllBytes()` ou um loop de leitura.
-        return new byte[0]; // Linha temporária
-    }
-
-    private static long escreverArquivoComprimido(String caminho, int[] freq, byte[] dados) throws IOException {
-        // TODO 15 (Pessoa 3): Implemente a escrita do arquivo comprimido.
-        // Use um `DataOutputStream`.
-        // 1. Escreva o cabeçalho: Percorra o array `freq` e escreva cada `int`.
-        // 2. Escreva um byte de padding (pode ser 0).
-        // 3. Escreva o array de `dados` comprimidos.
-        // Retorne o total de bits dos dados comprimidos para o resumo.
-        return 0; // Linha temporária
     }
 }
