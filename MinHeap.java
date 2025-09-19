@@ -1,5 +1,5 @@
 /*
- * Grupo:
+ * Grupa:
  * Bruna Amorim Maia - 10431883
  * Rafael Araujo Cabral Moreira - 10441919
  * Rute Willemann - 10436781
@@ -40,7 +40,7 @@ public class MinHeap {
     }
     
     public int tamanho() {
-        // TODO: Implementar.
+        // TODO (Pessoa 1): Implementar.
         return 0; // Linha temporária
     }
 
