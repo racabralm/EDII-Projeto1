@@ -91,3 +91,7 @@ O código-fonte está organizado nos seguintes arquivos:
 | Bruna Amorim Maia              | 10431883   |
 | Rafael Araujo Cabral Moreira   | 10441919   |
 | Rute Willemann                 | 10436781   |
+
+Turma 04N
+
+Prof. Dr. Jean M. Laine
