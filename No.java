@@ -4,56 +4,50 @@
  * Rafael Araujo Cabral Moreira - 10441919
  * Rute Willemann - 10436781
  */
+
 public class No implements Comparable<No> {
 
-    // --- Atributos ---
-    // TODO 1 (Pessoa 1): Declare os atributos finais para:
-    // - char caractere;
-    // - int frequencia;
-    // - No esquerda;
-    // - No direita;
+    // Atributos do Nó
+    public final char caractere;
+    public final int frequencia;
+    public final No esquerda;
+    public final No direita;
 
-
-    // --- Construtores ---
-    /**
-     * Construtor para nós FOLHA (que representam um caractere).
-     */
+    //Construtor para nós FOLHA (que representam um caractere)
     public No(char caractere, int frequencia) {
-        // TODO 2 (Pessoa 1): Inicialize os atributos para um nó folha.
-        // Os filhos (esquerda e direita) devem ser nulos.
+        this.caractere = caractere;
+        this.frequencia = frequencia;
+        this.esquerda = null;
+        this.direita = null;
     }
 
-    /**
-     * Construtor para nós INTERNOS (junção de dois nós).
-     */
+    //Construtor para nós INTERNOS (junção de dois nós)
     public No(int frequencia, No esquerda, No direita) {
-        // TODO 3 (Pessoa 1): Inicialize os atributos para um nó interno.
-        // O caractere pode ser um valor nulo como '\0'.
+        this.caractere = '\0'; // Caractere nulo para nós internos
+        this.frequencia = frequencia;
+        this.esquerda = esquerda;
+        this.direita = direita;
     }
 
-    // --- Métodos ---
-    /**
-     * Verifica se o nó é uma folha (não tem filhos).
-     * @return true se for uma folha, false caso contrário.
-     */
+    //Verifica se o nó é uma folha (não tem filhos)
+    //return true se for uma folha, false caso não
     public boolean isFolha() {
-        // TODO 4 (Pessoa 1): Implemente a lógica para verificar se o nó é uma folha.
-        // Dica: verifique se os filhos da esquerda e direita são nulos.
-        return false; // Linha temporária
+        return this.esquerda == null && this.direita == null;
     }
 
-    /**
-     * Compara este nó com outro nó baseado na frequência.
-     * Este método é o "cérebro" da fila de prioridades (Min-Heap).
-     * @param outroNo O nó a ser comparado.
-     * @return um valor < 0 se a frequência deste nó for menor,
-     * 0 se forem iguais,
-     * um valor > 0 se for maior.
-     */
+    //Compara este nó com outro nó baseado na frequência
+    //return um valor negativo se a frequência deste nó for menor zero se forem iguais, um valor positivo se for maior.
     @Override
     public int compareTo(No outroNo) {
-        // TODO 5 (Pessoa 1): Implemente a lógica de comparação de frequência.
-        // Dica: a fórmula é `this.frequencia - outroNo.frequencia`.
-        return 0; // Linha temporária
+        return this.frequencia - outroNo.frequencia;
+    }
+
+    // Representação em String para facilitar a depuração
+    @Override
+    public String toString() {
+        if (isFolha()) {
+            return "No('" + this.caractere + "', " + this.frequencia + ")";
+        }
+        return "No(interno, " + this.frequencia + ")";
     }
 }
