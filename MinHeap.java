@@ -1,63 +1,99 @@
 /*
- * Grupa:
+ * Grupo:
  * Bruna Amorim Maia - 10431883
  * Rafael Araujo Cabral Moreira - 10441919
  * Rute Willemann - 10436781
  */
+
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class MinHeap {
 
-    private ArrayList<No> heap;
+    private final ArrayList<No> heap;
 
     public MinHeap() {
-        // TODO 1 (Pessoa 1): Inicialize o ArrayList do heap.
+        this.heap = new ArrayList<>();
     }
 
-    /**
-     * Insere um novo nó no heap, mantendo a propriedade de heap mínimo.
-     * @param no O nó a ser inserido.
-     */
+    // Insere um novo nó no heap, mantendo a propriedade de heap mínimo
     public void inserir(No no) {
-        // TODO 2 (Pessoa 1): Implemente a inserção.
-        // 1. Adicione o novo nó ao final do ArrayList.
-        // 2. Chame o método heapifyParaCima a partir do índice do último elemento.
+        heap.add(no); // Adiciona no final
+        heapifyParaCima(heap.size() - 1); // Reorganiza para cima
     }
 
-    /**
-     * Remove e retorna o nó com a menor frequência (a raiz do heap).
-     * @return O nó de menor frequência.
-     */
+    // Remove e retorna o nó com a menor frequência (a raiz do heap)
     public No remover() {
-        // TODO 3 (Pessoa 1): Implemente a remoção.
-        // 1. Verifique se o heap não está vazio. Se estiver, lance uma exceção.
-        // 2. Salve a raiz (elemento no índice 0) para retorná-la no final.
-        // 3. Remova o último elemento do heap e coloque-o na posição da raiz (índice 0).
-        // 4. Chame o método heapifyParaBaixo a partir da raiz (índice 0) para reorganizar.
-        // 5. Retorne a raiz original.
-        throw new NoSuchElementException("Heap está vazio!"); // Linha temporária
+        if (tamanho() == 0) {
+            throw new NoSuchElementException("O heap está vazio");
+        }
+        
+        No raiz = heap.get(0); // O menor elemento
+        
+        // Se houver mais de um elemento, move o último para a raiz e reorganiza
+        if (tamanho() > 1) {
+            heap.set(0, heap.remove(heap.size() - 1));
+            heapifyParaBaixo(0);
+        } else {
+            heap.remove(0); // Apenas remove a raiz se for o único elemento
+        }
+        
+        return raiz;
     }
     
+    // Retorna o número de elementos no heap
     public int tamanho() {
-        // TODO (Pessoa 1): Implementar.
-        return 0; // Linha temporária
+        return heap.size();
     }
 
-    // --- Métodos Auxiliares ---
+    // --- Métodos Auxiliares (privados) ---
 
+    // Reorganiza o heap de baixo para cima a partir de um índice
     private void heapifyParaCima(int indice) {
-        // TODO 4 (Pessoa 1): Implemente a lógica do heapify para cima.
-        // Enquanto o nó atual for menor que seu pai, troque-os de lugar.
+        int pai = (indice - 1) / 2;
+        while (indice > 0 && heap.get(indice).compareTo(heap.get(pai)) < 0) {
+            trocar(indice, pai);
+            indice = pai;
+            pai = (indice - 1) / 2;
+        }
     }
 
+    // Reorganiza o heap de cima para baixo a partir de um índice
     private void heapifyParaBaixo(int indice) {
-        // TODO 5 (Pessoa 1): Implemente a lógica do heapify para baixo.
-        // Encontre o menor dos filhos. Se o filho for menor que o pai, troque-os.
-        // Repita o processo até que a propriedade do heap seja restaurada.
+        int menorFilho;
+        while (true) {
+            int esquerdo = 2 * indice + 1;
+            int direito = 2 * indice + 2;
+            menorFilho = indice;
+
+            // Encontra o menor entre o pai e os filhos
+            if (esquerdo < tamanho() && heap.get(esquerdo).compareTo(heap.get(menorFilho)) < 0) {
+                menorFilho = esquerdo;
+            }
+            if (direito < tamanho() && heap.get(direito).compareTo(heap.get(menorFilho)) < 0) {
+                menorFilho = direito;
+            }
+
+            // Se o menor ainda é o pai, a estrutura está correta
+            if (menorFilho == indice) {
+                break;
+            }
+            
+            trocar(indice, menorFilho);
+            indice = menorFilho;
+        }
     }
 
+    // Troca dois elementos de posição no ArrayList
     private void trocar(int i, int j) {
-        // TODO 6 (Pessoa 1): Implemente a troca de dois elementos no ArrayList.
+        No temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
+    }
+    
+    // Representação em String para facilitar a depuração
+    @Override
+    public String toString() {
+        return heap.toString();
     }
 }
