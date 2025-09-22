@@ -13,7 +13,28 @@ public class Huffman {
     private static final int TAMANHO_ASCII = 256;
 
     public static void main(String[] args) throws IOException {
-        // TODO 1 (Pessoa 3): Implementar a lógica principal para linha de comando
+        // Verifica se o usuario passou os parametros corretos
+        if (args.length < 3) {
+            System.out.println("Uso:");
+            System.out.println("  Para comprimir:   java -jar huffman.jar -c <entrada.txt> <saida.huff>");
+            System.out.println("  Para descomprimir: java -jar huffman.jar -d <entrada.huff> <saida.txt>");
+            return;
+        }
+
+        String opcao = args[0];      // -c ou -d
+        String entrada = args[1];    // nome do arquivo de entrada
+        String saida = args[2];      // nome do arquivo de saida
+
+        // Decide se vai comprimir ou descomprimir 
+        if (opcao.equals("-c")) {
+            comprimir(entrada, saida);
+            System.out.println("Arquivo comprimido gerado: " + saida);
+        } else if (opcao.equals("-d")) {
+            descomprimir(entrada, saida);
+            System.out.println("Arquivo descomprimido gerado: " + saida);
+        } else {
+            System.out.println("Opção inválida. Use -c para comprimir ou -d para descomprimir.");
+        }
     }
 
     // --- LÓGICA DE COMPRESSÃO ---
@@ -121,10 +142,55 @@ public class Huffman {
     // --- PARTE DA DESCOMPRESSÃO ---
     
     public static void descomprimir(String arqOrigem, String arqDestino) throws IOException {
-        // TODO 12 (Pessoa 3): Implementar o fluxo de descompressão
+        // Abre o arquivo .huff para leitura binaria
+        try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(arqOrigem)))) {
+
+            // Le a tabela de frequencias (256 inteiros)
+            int[] freq = new int[TAMANHO_ASCII];
+            long totalChars = 0;    // total de caracteres originais
+            for (int i = 0; i < TAMANHO_ASCII; i++) {
+                freq[i] = in.readInt();
+                totalChars += freq[i];
+            }
+
+            // Le o byte de padding
+            in.readByte();
+
+            // Reconstroi a arvore de Huffman
+            No raiz = construirArvoreHuffman(freq);
+
+            // Le todos os bytes comprimidos restantes no arquivo
+            byte[] dadosComprimidos = in.readAllBytes();
+
+            // Decodifica os dados e escreve no arquivo de saida
+            decodificarDados(arqDestino, raiz, dadosComprimidos, totalChars);
+        }
     }
 
     private static void decodificarDados(String arqDestino, No raiz, byte[] dados, long totalChars) throws IOException {
-        // TODO 13 (Pessoa 3): Implementar a decodificação
-    }
+        // Converte os bytes comprimidos em um conjunto de bits
+        BitSet bitSet = BitSet.valueOf(dados);
+
+        // Abre o arqivo de saida para escrita
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(arqDestino))) {
+            No atual = raiz;    // comeca na raiz da arvore
+            long contagem = 0;  // conta quantos caracteres ja foram decodificados
+
+            // Percorre os bits ate reconstruir todos os caracteres
+            for (int i = 0; contagem < totalChars; i++) {
+                // Caminha na arvore conforme o bit
+                if (bitSet.get(i)) {
+                    atual = atual.direita;  // bit 1 -> vai para direita
+                } else {
+                    atual = atual.esquerda; // bit 0 → vai para esquerda
+                }
+
+                if (atual.isFolha()) {
+                    writer.write(atual.caractere);
+                    atual = raiz;   // volta para o topo da arvore
+                    contagem++;     // incrementa o numero de caracteres ja restaurados
+                }
+            }
+        }
+    }
 }
