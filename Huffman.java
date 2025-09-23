@@ -33,32 +33,41 @@ public class Huffman {
             descomprimir(entrada, saida);
             System.out.println("Arquivo descomprimido gerado: " + saida);
         } else {
-            System.out.println("Opção inválida. Use -c para comprimir ou -d para descomprimir.");
+            System.out.println("Opcao invalida: " + opcao);
+            System.out.println("Use '-c' para comprimir ou '-d' para descomprimir.");
         }
     }
 
-    // --- LÓGICA DE COMPRESSÃO ---
     public static void comprimir(String arqOrigem, String arqDestino) throws IOException {
-        // Chama os métodos implementados
         byte[] bytesArquivo = lerArquivo(arqOrigem);
         int[] tabelaFrequencia = construirTabelaFrequencia(bytesArquivo);
         No raiz = construirArvoreHuffman(tabelaFrequencia);
-        String[] tabelaCodigos = new String[TAMANHO_ASCII];
-        gerarTabelaCodigos(raiz, "", tabelaCodigos);
+        String[] tabelaCodigos = gerarTabelaCodigos(raiz);
         byte[] dadosComprimidos = codificarDados(bytesArquivo, tabelaCodigos);
-        escreverArquivoComprimido(arqDestino, tabelaFrequencia, dadosComprimidos);
+        
+        escreverArquivoComprimido(arqDestino, tabelaFrequencia, bytesArquivo.length, dadosComprimidos);
     }
 
-    // Constrói a tabela de frequência dos caracteres
+    // Le um arquivo e retorna seu conteudo como um array de bytes
+    private static byte[] lerArquivo(String caminho) throws IOException {
+        File arquivo = new File(caminho);
+        byte[] bytesArquivo = new byte[(int) arquivo.length()];
+        try (FileInputStream fis = new FileInputStream(arquivo)) {
+            fis.read(bytesArquivo);
+        }
+        return bytesArquivo;
+    }
+
+    // Constroi a tabela de frequencia dos caracteres
     private static int[] construirTabelaFrequencia(byte[] dados) {
         int[] freq = new int[TAMANHO_ASCII];
         for (byte b : dados) {
-            freq[b & 0xFF]++; // Trata o byte como valor de 0 a 255
+            freq[b & 0xFF]++;
         }
         return freq;
     }
 
-    // Constrói a Árvore de Huffman usando o MinHeap
+    // Constroi a Arvore de Huffman usando o MinHeap
     private static No construirArvoreHuffman(int[] freq) {
         MinHeap minHeap = new MinHeap();
         for (int i = 0; i < TAMANHO_ASCII; i++) {
@@ -67,7 +76,6 @@ public class Huffman {
             }
         }
 
-        // Combina os nós até sobrar apenas a raiz
         while (minHeap.tamanho() > 1) {
             No esquerda = minHeap.remover();
             No direita = minHeap.remover();
@@ -78,19 +86,21 @@ public class Huffman {
         return minHeap.remover();
     }
 
-    // Gera a tabela de códigos binários recursivamente
-    private static void gerarTabelaCodigos(No no, String codigo, String[] tabela) {
-        if (no == null) {
-            return;
-        }
-        // Se é uma folha, achou um caractere
+    // Gera a tabela de codigos binarios
+    private static String[] gerarTabelaCodigos(No raiz) {
+        String[] tabela = new String[TAMANHO_ASCII];
+        gerarCodigosRecursivo(raiz, "", tabela);
+        return tabela;
+    }
+    
+    // Funcao auxiliar recursiva para gerar os codigos
+    private static void gerarCodigosRecursivo(No no, String codigo, String[] tabela) {
         if (no.isFolha()) {
             tabela[no.caractere] = codigo;
-        } else {
-            // Continua o percurso
-            gerarTabelaCodigos(no.esquerda, codigo + "0", tabela);
-            gerarTabelaCodigos(no.direita, codigo + "1", tabela);
+            return;
         }
+        gerarCodigosRecursivo(no.esquerda, codigo + "0", tabela);
+        gerarCodigosRecursivo(no.direita, codigo + "1", tabela);
     }
 
     // Codifica os dados do arquivo original em um array de bytes comprimido
@@ -110,51 +120,34 @@ public class Huffman {
         
         return bitSet.toByteArray();
     }
-    
-    // Lê um arquivo e retorna seu conteúdo como um array de bytes
-    private static byte[] lerArquivo(String caminho) throws IOException {
-        File arquivo = new File(caminho);
-        byte[] bytesArquivo = new byte[(int) arquivo.length()];
-        try (FileInputStream fis = new FileInputStream(arquivo)) {
-            fis.read(bytesArquivo);
-        }
-        return bytesArquivo;
-    }
 
     // Escreve o arquivo comprimido final (.huff)
-    private static long escreverArquivoComprimido(String caminho, int[] freq, byte[] dados) throws IOException {
-        long totalBits = 0;
+    private static void escreverArquivoComprimido(String caminho, int[] freq, long totalChars, byte[] dados) throws IOException {
         try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(caminho)))) {
-            // Escreve o cabeçalho com as frequências
+            // Escreve o cabecalho com as frequencias
             for (int f : freq) {
                 out.writeInt(f);
             }
 
-            // Escreve um byte de padding (nesta implementação, sempre 0)
-            out.write(0);
-            
+            // Escreve o número total de bytes do arquivo original
+            out.writeLong(totalChars);
+
             // Escreve os dados comprimidos
             out.write(dados);
         }
-        return totalBits;
     }
 
-    // --- PARTE DA DESCOMPRESSÃO ---
-    
     public static void descomprimir(String arqOrigem, String arqDestino) throws IOException {
-        // Abre o arquivo .huff para leitura binaria
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(arqOrigem)))) {
 
-            // Le a tabela de frequencias (256 inteiros)
+            // Le a tabela de frequencias
             int[] freq = new int[TAMANHO_ASCII];
-            long totalChars = 0;    // total de caracteres originais
             for (int i = 0; i < TAMANHO_ASCII; i++) {
                 freq[i] = in.readInt();
-                totalChars += freq[i];
             }
-
-            // Le o byte de padding
-            in.readByte();
+            
+            // Lê o número total de bytes que o arquivo final deve ter
+            long totalChars = in.readLong();
 
             // Reconstroi a arvore de Huffman
             No raiz = construirArvoreHuffman(freq);
@@ -171,8 +164,8 @@ public class Huffman {
         // Converte os bytes comprimidos em um conjunto de bits
         BitSet bitSet = BitSet.valueOf(dados);
 
-        // Abre o arqivo de saida para escrita
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(arqDestino))) {
+        // Abre o arquivo de saida para escrita de BYTES PUROS, evitando problemas de encoding
+        try(FileOutputStream fos = new FileOutputStream(arqDestino)) {
             No atual = raiz;    // comeca na raiz da arvore
             long contagem = 0;  // conta quantos caracteres ja foram decodificados
 
@@ -186,7 +179,8 @@ public class Huffman {
                 }
 
                 if (atual.isFolha()) {
-                    writer.write(atual.caractere);
+                    // Escreve o byte decodificado diretamente no arquivo
+                    fos.write((byte) atual.caractere);
                     atual = raiz;   // volta para o topo da arvore
                     contagem++;     // incrementa o numero de caracteres ja restaurados
                 }
